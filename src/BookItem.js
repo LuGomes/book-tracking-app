@@ -1,6 +1,8 @@
 import React from "react";
 
 const BookItem = ({ book, updateBookShelf }) => {
+  // Do not render books with missing thumbnails
+  if (!book.imageLinks) return null;
   return (
     <div className="book">
       <div className="book-top">
@@ -9,11 +11,14 @@ const BookItem = ({ book, updateBookShelf }) => {
           style={{
             width: 128,
             height: 193,
-            backgroundImage: `url(${book.imageLinks.smallThumbnail})`,
+            backgroundImage: `url(${book.imageLinks.thumbnail})`,
           }}
         />
         <div className="book-shelf-changer">
-          <select onChange={(e) => updateBookShelf(book, e.target.value)} value={book.shelf}>
+          <select
+            onChange={(e) => updateBookShelf(book, e.target.value)}
+            value={book.shelf}
+          >
             <option value="move" disabled>
               Move to...
             </option>
