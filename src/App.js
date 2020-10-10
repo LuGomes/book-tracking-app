@@ -43,6 +43,17 @@ class BooksApp extends React.Component {
     );
   };
 
+  updateFilteredBooksShelves = (book, shelf) => {
+    const newFilteredBooks = this.state.filteredBooks.slice();
+    const index = newFilteredBooks.findIndex((b) => b.id === book.id);
+    if (index !== -1) {
+      newFilteredBooks[index].shelf = shelf;
+      return newFilteredBooks;
+    } else {
+      return null;
+    }
+  };
+
   getfilteredBooksFromIds = (filteredBookIds) => {
     const sortedBooks = { currentlyReading: [], wantToRead: [], read: [] };
     for (const shelf in filteredBookIds) {
@@ -58,7 +69,8 @@ class BooksApp extends React.Component {
   updateBookShelves = (book, shelf) => {
     BooksAPI.update(book, shelf).then((sortedBooksIds) => {
       const sortedBooks = this.getfilteredBooksFromIds(sortedBooksIds);
-      this.setState({ sortedBooks });
+      const filteredBooks = this.updateFilteredBooksShelves(book, shelf);
+      this.setState({ sortedBooks, ...(filteredBooks && { filteredBooks }) });
     });
   };
 
