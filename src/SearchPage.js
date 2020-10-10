@@ -1,32 +1,24 @@
 import React, { Component } from "react";
-import "./App.css";
 import { Link } from "react-router-dom";
-import * as BooksAPI from "./BooksAPI";
 import BookItem from "./BookItem";
-import * as _ from "lodash";
 
 class SearchPage extends Component {
   state = { searchTerm: "", filteredBooks: [] };
-  search = (event) => {
+
+  onSearch = (event) => {
     event.persist();
-    let searchTerm = event.target.value;
-    this.setState({ searchTerm });
-    if (!this.debouncedSearch) {
-      this.debouncedSearch = _.debounce((searchTerm) => {
-        if (searchTerm) {
-          BooksAPI.search(searchTerm).then((filteredBooks) => {
-            this.setState({ filteredBooks });
-          });
-        } else {
-          this.setState({ filteredBooks: [] });
-        }
-      }, 200);
-    }
-    this.debouncedSearch(searchTerm);
+    const searchTerm = event.target.value;
+    this.setState({ searchTerm }, () => this.props.searchBooks(searchTerm));
+  };
+
+  addBookToMyLibraryAndUpdateBookShelves = (book, shelf) => {
+    this.props.addBookToMyLibrary(book, shelf);
+    this.props.updateBookShelves(book, shelf);
   };
 
   render() {
-    const { searchTerm, filteredBooks } = this.state;
+    const { searchTerm } = this.state;
+    const { filteredBooks } = this.props;
     return (
       <div className="search-books">
         <div className="search-books-bar">
@@ -38,7 +30,7 @@ class SearchPage extends Component {
               type="text"
               placeholder="Search by title or author"
               value={searchTerm}
-              onChange={this.search}
+              onChange={this.onSearch}
             />
           </div>
         </div>
@@ -46,7 +38,11 @@ class SearchPage extends Component {
           <div className="search-books-results">
             <ol className="books-grid">
               {filteredBooks.map((book) => (
-                <BookItem key={book.id} book={book} />
+                <BookItem
+                  key={book.id}
+                  book={book}
+                  updateBookShelf={this.addBookToMyLibraryAndUpdateBookShelves}
+                />
               ))}
             </ol>
           </div>
