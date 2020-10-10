@@ -8,17 +8,23 @@ import * as _ from "lodash";
 class SearchPage extends Component {
   state = { searchTerm: "", filteredBooks: [] };
   search = (event) => {
+    event.persist();
     let searchTerm = event.target.value;
-    this.setState({ searchTerm }, () => {
-      if (searchTerm) {
-        BooksAPI.search(searchTerm).then((filteredBooks) => {
-          this.setState({ filteredBooks });
-        });
-      } else {
-        this.setState({ filteredBooks: [] });
-      }
-    });
+    this.setState({ searchTerm });
+    if (!this.debouncedSearch) {
+      this.debouncedSearch = _.debounce((searchTerm) => {
+        if (searchTerm) {
+          BooksAPI.search(searchTerm).then((filteredBooks) => {
+            this.setState({ filteredBooks });
+          });
+        } else {
+          this.setState({ filteredBooks: [] });
+        }
+      }, 200);
+    }
+    this.debouncedSearch(searchTerm);
   };
+
   render() {
     const { searchTerm, filteredBooks } = this.state;
     return (
