@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import "./App.css";
 
 const BookItem = ({ book }) => {
@@ -27,9 +27,10 @@ const BookItem = ({ book }) => {
       </div>
       <div className="book-title">{book.title}</div>
       <div className="book-authors">
-        {book.authors.map((author) => (
-          <span>{author}</span>
-        ))}
+        {book.authors &&
+          book.authors.map((author) => (
+            <span key={book.id + author}>{author}</span>
+          ))}
       </div>
     </div>
   );
