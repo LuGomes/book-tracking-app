@@ -8,25 +8,49 @@ import BookShelf from "./BookShelf";
 class BooksApp extends React.Component {
   state = {
     allBooks: [],
-    shelves: { currentlyReading: [], wantToRead: [], read: [] },
+    filteredBooks: { currentlyReading: [], wantToRead: [], read: [] },
+  };
+
+  getfilteredBooksFromIds = (filteredBookIds) => {
+    const filteredBooks = { currentlyReading: [], wantToRead: [], read: [] };
+    for (const shelf in filteredBookIds) {
+      for (let id of filteredBookIds[shelf]) {
+        const book = this.state.allBooks.filter((book) => book.id === id)[0];
+        book.shelf = shelf;
+        filteredBooks[shelf].push(book);
+      }
+    }
+    return filteredBooks;
+  };
+
+  updateBookShelves = (book, shelf) => {
+    BooksAPI.update(book, shelf).then((filteredBookIds) => {
+      const filteredBooks = this.getfilteredBooksFromIds(filteredBookIds);
+      this.setState({ filteredBooks });
+    });
   };
 
   filterByShelf = (allBooks, shelf) => {
-    return allBooks.filter((book) => book.shelf === shelf);
+    const books = allBooks.filter((book) => book.shelf === shelf);
+    return books;
   };
-  componentDidMount() {
-    BooksAPI.getAll().then((allBooks) => {
-      const currentlyReading = this.filterByShelf(allBooks, "currentlyReading");
-      const wantToRead = this.filterByShelf(allBooks, "wantToRead");
-      const read = this.filterByShelf(allBooks, "read");
-      this.setState({
-        allBooks,
-        shelves: { currentlyReading, wantToRead, read },
-      });
+
+  sortBooksByShelves = (allBooks) => {
+    const currentlyReading = this.filterByShelf(allBooks, "currentlyReading");
+    const wantToRead = this.filterByShelf(allBooks, "wantToRead");
+    const read = this.filterByShelf(allBooks, "read");
+    this.setState({
+      allBooks,
+      filteredBooks: { currentlyReading, wantToRead, read },
     });
+  };
+
+  componentDidMount() {
+    BooksAPI.getAll().then((allBooks) => this.sortBooksByShelves(allBooks));
   }
+
   render() {
-    const { shelves } = this.state;
+    const { filteredBooks } = this.state;
     return (
       <>
         <Route
@@ -42,13 +66,19 @@ class BooksApp extends React.Component {
                   <div>
                     <BookShelf
                       title="Currently Reading"
-                      books={shelves.currentlyReading}
+                      books={filteredBooks.currentlyReading}
+                      updateBookShelf={this.updateBookShelves}
                     />
                     <BookShelf
                       title="Want to Read"
-                      books={shelves.wantToRead}
+                      books={filteredBooks.wantToRead}
+                      updateBookShelf={this.updateBookShelves}
                     />
-                    <BookShelf title="Read" books={shelves.read} />
+                    <BookShelf
+                      title="Read"
+                      books={filteredBooks.read}
+                      updateBookShelf={this.updateBookShelves}
+                    />
                   </div>
                 </div>
                 <div className="open-search">
