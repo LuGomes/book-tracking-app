@@ -11,11 +11,6 @@ class SearchPage extends Component {
     this.setState({ searchTerm }, () => this.props.searchBooks(searchTerm));
   };
 
-  addBookToMyLibraryAndUpdateBookShelves = (book, shelf) => {
-    this.props.addBookToMyLibrary(book, shelf);
-    this.props.updateBookShelves(book, shelf);
-  };
-
   render() {
     const { searchTerm } = this.state;
     const { filteredBooks } = this.props;
@@ -41,7 +36,9 @@ class SearchPage extends Component {
                 <BookItem
                   key={book.id}
                   book={book}
-                  updateBookShelf={this.addBookToMyLibraryAndUpdateBookShelves}
+                  updateBookShelf={
+                    this.props.addBookToMyLibraryAndUpdateBookShelves
+                  }
                 />
               ))}
             </ol>

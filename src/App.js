@@ -28,16 +28,19 @@ class BooksApp extends React.Component {
     this.debouncedSearch(searchTerm);
   };
 
-  addBookToMyLibrary = (book, shelf) => {
+  addBookToMyLibraryAndUpdateBookShelves = (book, shelf) => {
     const newFilteredBooks = this.state.filteredBooks.slice();
     const index = newFilteredBooks.findIndex((b) => b.id === book.id);
     newFilteredBooks.splice(index, 1);
     book.shelf = shelf;
     newFilteredBooks.push(book);
-    this.setState((prevState) => ({
-      allBooks: [...prevState.allBooks, book],
-      filteredBooks: newFilteredBooks,
-    }));
+    this.setState(
+      (prevState) => ({
+        allBooks: [...prevState.allBooks, book],
+        filteredBooks: newFilteredBooks,
+      }),
+      () => this.updateBookShelves(book, shelf)
+    );
   };
 
   getfilteredBooksFromIds = (filteredBookIds) => {
@@ -98,8 +101,9 @@ class BooksApp extends React.Component {
             <SearchPage
               filteredBooks={filteredBooks}
               searchBooks={this.searchBooks}
-              addBookToMyLibrary={this.addBookToMyLibrary}
-              updateBookShelves={this.updateBookShelves}
+              addBookToMyLibraryAndUpdateBookShelves={
+                this.addBookToMyLibraryAndUpdateBookShelves
+              }
             />
           )}
         />
